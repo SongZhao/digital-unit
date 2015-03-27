@@ -1,0 +1,4 @@
+@0 1ffe   // Xset value 
+@1 0d53   // Pterm 
+@2 008a   // Iterm
+@3 013a   // Dterm

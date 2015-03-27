@@ -1,0 +1,94 @@
+###################################
+# Read in the verilog files first #
+###################################
+read_file -format sverilog { ./dig_cor.v ./UART_tx.sv ./cfg_UART.v ./UART.v ./datapath.v ./mathSM.v ./cbc_dig.v ./accel_UART.v ./UART_rx.v ./cfg_mstr.v ./pwm.sv }
+
+###################################
+# Set Current Design to top level #
+###################################
+set current_design cbc_dig
+
+
+###########################################
+# Define clock and set don't mess with it #
+###########################################
+create_clock -name "clk" -period 1.33 -waveform {0 0.666} {clk}
+set_dont_touch_network [find port clk]
+
+##############################
+#Set clock uncertainty
+#############################
+set_clock_uncertainty 0.05 clk
+set_fix_hold clk
+
+#######################################################
+# Setup pointer that contains all inputs except clock #
+#######################################################
+set prim_inputs [remove_from_collection [all_inputs] [find port clk][find port eep_rd_data]]
+
+###################
+# Set input delay #
+###################
+set_input_delay -clock clk 0.35 $prim_inputs
+set_input_delay -clock clk 0.50 [find port eep_rd_data]
+####################
+# Drive all inputs #
+####################
+set_driving_cell -lib_cell AO33D0BWP -from_pin A1 -library \
+                  tcbn40lpbwptc $prim_inputs
+set_drive 0.1 rst_n
+
+##########################################
+# Set output delay & load on all outputs #
+##########################################
+set prim_outputs [remove_from_collection [all_outputs] [find port dst]]
+set_output_delay -clock clk 0.35 $prim_outputs
+set_output_delay -clock clk 0.075 [find port dst]
+set_load 0.05 [all_outputs]
+
+#############################################################
+# Wire load model allows it to estimate internal parasitics #
+#############################################################
+set_wire_load_model -name TSMC32K_Lowk_Aggresive \
+                    -library tcbn40lpbwptc
+
+######################################################
+# Max transition time is important for Hot-E reasons #
+######################################################
+set_max_transition 0.1 [current_design]
+
+########################################
+# Now actually synthesize for 1st time #
+########################################
+compile -map_effort medium
+
+###########################################
+# Design ware component caused extra pins #
+###########################################
+check_design
+
+set_max_area 3000
+
+uniquify
+
+######################
+# Compile the design #
+######################
+compile_ultra
+
+###########################################
+# Design ware component caused extra pins #
+###########################################
+check_design
+
+############################
+# Get area and time report #
+############################
+report_area > area.rpt
+report_timing -delay max > max.rpt
+report_timing -delay min > min.rpt
+
+###########################################
+# Write out resulting synthesized netlist #
+###########################################
+write -format verilog cbc_dig -output cbc_dig.vg

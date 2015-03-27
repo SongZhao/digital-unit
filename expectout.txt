@@ -1,0 +1,32 @@
+ 5f3
+ 504
+ 37f
+ 1b7
+fffffffffffffffc
+fffffffffffffe8b
+fffffffffffffd90
+fffffffffffffd16
+fffffffffffffd1e
+fffffffffffffd8f
+fffffffffffffe48
+ffffffffffffff1f
+fffffffffffffff0
+  9f
+ 116
+ 14f
+ 14b
+ 115
+  bf
+  59
+fffffffffffffff6
+ffffffffffffffa5
+ffffffffffffff6b
+ffffffffffffff51
+ffffffffffffff52
+ffffffffffffff6a
+ffffffffffffff94
+ffffffffffffffc3
+fffffffffffffff2
+  17
+  33
+  3f
